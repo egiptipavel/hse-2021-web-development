@@ -1,7 +1,7 @@
 from pydantic import BaseModel
 
 
-class Animal(BaseModel):
+class Component(BaseModel):
     name: str
     type: str
-    weight: float
+    cost: float
