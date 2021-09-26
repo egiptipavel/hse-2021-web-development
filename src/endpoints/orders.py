@@ -33,10 +33,15 @@ def add_order(id_user: int, components: List[int]):
     return "Order created"
 
 
-@router.post('/', response_model=Response)
-def create_order(id_user: int, components: List[int]):
+def create(id_user: int, components: List[int]):
     result = check_availability_components(components)
     if result.__class__ == str:
-        return JSONResponse(status_code=400, content={"error": result})
+        return {'status_code': 400, 'content': {"error": result}}
     result = add_order(id_user, components=components)
-    return JSONResponse(status_code=200, content={"response": result})
+    return {'status_code': 200, 'content': {"response": result}}
+
+
+@router.post('/', response_model=Response)
+def create_order(id_user: int, components: List[int]):
+    result = create(id_user, components)
+    return JSONResponse(status_code=result.get("status_code"), content=result.get("content"))
