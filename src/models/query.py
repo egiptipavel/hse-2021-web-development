@@ -1,3 +1,4 @@
+import graphene
 from src.models.writer import Writer, list_of_writers
 
 

@@ -1,7 +1,6 @@
 from typing import List
 
 import graphene
-
 from src.models.book import Book
 
 

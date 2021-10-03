@@ -1,5 +1,6 @@
 import graphene
 
+
 class Book(graphene.ObjectType):
     title: str = graphene.String()
     description: str = graphene.String()

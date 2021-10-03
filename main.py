@@ -3,7 +3,7 @@ import uvicorn
 from fastapi import FastAPI
 from starlette.graphql import GraphQLApp
 
-from src.models.writer import Query
+from src.models.query import Query
 
 app = FastAPI()
 app.add_route("/", GraphQLApp(schema=graphene.Schema(query=Query)))
