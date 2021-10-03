@@ -1,14 +1,12 @@
+import graphene
 import uvicorn
 from fastapi import FastAPI
+from starlette.graphql import GraphQLApp
 
-from src.endpoints.components import router as components
-from src.endpoints.orders import router as orders
-from src.endpoints.users import router as users
+from src.models.writer import Query
 
 app = FastAPI()
-app.include_router(components)
-app.include_router(orders)
-app.include_router(users)
+app.add_route("/", GraphQLApp(schema=graphene.Schema(query=Query)))
 
 if __name__ == "__main__":
     uvicorn.run("main:app", port=8000, host="localhost", reload=True)
