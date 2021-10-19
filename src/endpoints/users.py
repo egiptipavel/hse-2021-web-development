@@ -29,3 +29,8 @@ def get_user_by_id(id: int, db: Session = Depends(get_db)):
     if user is None:
         return JSONResponse(status_code=404, content=jsonable_encoder(Error(error="User with such id does not exist")))
     return JSONResponse(status_code=200, content=jsonable_encoder(user))
+
+
+def check_user_exist(id: int, db: Session):
+    user = crud.get_user_by_id(db, id)
+    return user is not None

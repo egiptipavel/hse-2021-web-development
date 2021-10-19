@@ -4,8 +4,6 @@ services:
   web:
     build: .
     command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; python3 main.py'
-    volumes:
-      - .:/app
     ports:
       - "8000:8000"
 

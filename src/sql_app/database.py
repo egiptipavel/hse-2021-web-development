@@ -2,7 +2,7 @@ from sqlalchemy import create_engine
 from sqlalchemy.ext.declarative import declarative_base
 from sqlalchemy.orm import sessionmaker
 
-SQLALCHEMY_DATABASE_URL = "postgresql://hse:password@localhost:5432/db"
+SQLALCHEMY_DATABASE_URL = "postgresql://hse:password@db:5432/db"
 
 engine = create_engine(
     SQLALCHEMY_DATABASE_URL
@@ -13,7 +13,7 @@ Base = declarative_base()
 
 
 def get_db():
-    db = SessionLocal()
+    db: Session = SessionLocal()
     try:
         yield db
     finally:

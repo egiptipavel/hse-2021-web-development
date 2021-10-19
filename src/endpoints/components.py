@@ -36,6 +36,11 @@ def check_component(component: ComponentCreate):
         return 400, Error(error="Cost must be more than 0 dollars")
 
 
+def check_component_exist(component_id: int, db: Session):
+    component = crud.get_component_by_id(db, component_id)
+    return component is not None
+
+
 def check_and_add_component(component: ComponentCreate, db: Session):
     result = check_component(component)
     if result is not None:

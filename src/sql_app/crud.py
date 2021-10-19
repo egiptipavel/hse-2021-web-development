@@ -11,6 +11,8 @@ def create_user(db: Session, user: schemas.UserCreate):
     db_user = models.User(login=user.login, password=user.password)
     db.add(db_user)
     db.commit()
+    db.refresh(db_user)
+    return db_user
 
 
 def get_all_users(db: Session):
@@ -46,6 +48,8 @@ def add_component(db: Session, component: schemas.ComponentCreate):
     db_component = models.Component(name=component.name, type=component.type, cost=component.cost)
     db.add(db_component)
     db.commit()
+    db.refresh(db_component)
+    return db_component
 
 
 def delete_component_by_id(db: Session, component_id):
