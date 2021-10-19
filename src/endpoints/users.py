@@ -1,26 +1,31 @@
-from typing import Dict
-
 from fastapi import APIRouter
+from fastapi import Depends
+from fastapi.encoders import jsonable_encoder
+from sqlalchemy.orm.session import Session
 from starlette.responses import JSONResponse
 
+from src.models.error import Error
 from src.models.response import Response
-from src.models.user import User
+from src.sql_app import crud
+from src.sql_app.database import get_db
+from src.sql_app.schemas import UserCreate
 
 router = APIRouter(prefix="/users", tags=["Users"], )
 
-users: Dict[str, User] = dict()
-
-
-def create(user: User):
-    if users.get(user.login) is None:
-        users[user.login] = user
-        return {'status_code': 200, 'content': {"response": "Account created"}}
-    else:
-        return {'status_code': 400, 'content': {"error": "User with such login already exists"}}
-
 
 @router.post('/', response_model=Response)
-def create_user(user: User):
-    user.id = len(users)
-    result = create(user)
-    return JSONResponse(status_code=result.get("status_code"), content=result.get("content"))
+def create_user(user: UserCreate, db: Session = Depends(get_db)):
+    crud.create_user(db, user)
+
+
+@router.get('/')
+def get_all_users(db: Session = Depends(get_db)):
+    return crud.get_all_users(db)
+
+
+@router.get('/{id}')
+def get_user_by_id(id: int, db: Session = Depends(get_db)):
+    user = crud.get_user_by_id(db, id)
+    if user is None:
+        return JSONResponse(status_code=404, content=jsonable_encoder(Error(error="User with such id does not exist")))
+    return JSONResponse(status_code=200, content=jsonable_encoder(user))

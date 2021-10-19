@@ -1,30 +1,29 @@
-from src.endpoints.orders import create
-from src.endpoints.orders import orders, count_of_orders
-from src.tests.integration.test_components import test_add_component
+import sqlalchemy
+from sqlalchemy import create_engine
+from sqlalchemy.orm import sessionmaker
+from sqlalchemy.orm.session import Session
+
+from ...sql_app import models
+from ...sql_app.crud import create_user
+from ...sql_app.database import Base
+from ...sql_app.schemas import UserCreate
+
+SQLALCHEMY_DATABASE_URL = "postgresql://hse:password@localhost:5433/test_db"
+
+engine = create_engine(
+    SQLALCHEMY_DATABASE_URL,
+)
+TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
+
+Base.metadata.create_all(bind=engine)
 
 
-def test_create_order_successful():
-    orders.clear()
-    count_of_orders.pop()
-    count_of_orders.append(1)
-    test_add_component()
-    status_code, content = create(1, [1])
-    assert status_code == 200
-    assert content.response == "Order created"
+def delete_from_table(table, db: Session):
+    db.query(table).delete(synchronize_session='fetch')
+    db.commit()
 
 
-def test_create_order_not_successful():
-    orders.clear()
-    count_of_orders.pop()
-    count_of_orders.append(1)
-    status_code, content = create(1, [1])
-    assert status_code == 400
-    assert content.error == "No component with 1 id"
-
-
-def test_create_order_twice():
-    test_create_order_successful()
-    test_add_component()
-    status_code, content = create(1, [1])
-    assert status_code == 200
-    assert content.response == "Order created"
+def test_create_user(db: Session = TestingSessionLocal()):
+    delete_from_table(models.User, db)
+    user = UserCreate(password="password", **{"login": "login"})
+    create_user(db, user)
