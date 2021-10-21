@@ -1,38 +1,27 @@
 from fastapi.encoders import jsonable_encoder
-from sqlalchemy import create_engine
-from sqlalchemy.orm import sessionmaker
-from sqlalchemy.orm.session import Session
 
-from ...models.error import Error
-from ...models.response import Response
+from src.db import crud, models
+from ..database_for_tests import db
+from ...schemas.component import ComponentCreate
+from ...schemas.error import Error
+from ...schemas.response import Response
+from ...schemas.user import UserCreate
 from ...services import orders_service
-from ...sql_app import crud
-from ...sql_app import models
-from ...sql_app.database import Base
-from ...sql_app.schemas import UserCreate, ComponentCreate
-
-SQLALCHEMY_DATABASE_URL = "postgresql://hse:password@localhost:5433/test_db"
-
-engine = create_engine(
-    SQLALCHEMY_DATABASE_URL,
-)
-TestingSessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
-
-Base.metadata.create_all(bind=engine)
-
-db: Session = TestingSessionLocal()
 
 
-def delete_from_table(table):
-    db.query(table).delete(synchronize_session='fetch')
+def delete_data_from_table():
+    db.query(models.Order).delete(synchronize_session='fetch')
+    db.commit()
+    db.query(models.User).delete(synchronize_session='fetch')
+    db.commit()
+    db.query(models.OrderToUser).delete(synchronize_session='fetch')
+    db.commit()
+    db.query(models.Component).delete(synchronize_session='fetch')
     db.commit()
 
 
 def test_create_order_successful():
-    delete_from_table(models.User)
-    delete_from_table(models.Component)
-    delete_from_table(models.Order)
-    delete_from_table(models.OrderToUser)
+    delete_data_from_table()
     user_id = crud.create_user(db, UserCreate(password="password", **{"login": "login"})).id
     component_id = crud.add_component(db, ComponentCreate(name="name", type="type", cost=1.0)).id
     status_code, content = orders_service.create_order(user_id, [component_id], db)
@@ -47,10 +36,7 @@ def test_create_order_successful():
 
 
 def test_create_order_not_successful():
-    delete_from_table(models.User)
-    delete_from_table(models.Component)
-    delete_from_table(models.Order)
-    delete_from_table(models.OrderToUser)
+    delete_data_from_table()
     component_id = crud.add_component(db, ComponentCreate(name="name", type="type", cost=1.0)).id
     status_code, content = orders_service.create_order(1, [component_id], db)
     assert status_code == 400

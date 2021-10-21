@@ -1,13 +1,13 @@
 import uvicorn
 from fastapi import FastAPI
 
+from src.db.database import engine
 from src.endpoints.components import router as components
 from src.endpoints.orders import router as orders
 from src.endpoints.users import router as users
-from src.sql_app import models
-from src.sql_app.database import engine
+from src.db.models import Base
 
-models.Base.metadata.create_all(bind=engine)
+Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 app.include_router(components)

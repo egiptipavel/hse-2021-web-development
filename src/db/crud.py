@@ -1,13 +1,15 @@
 from sqlalchemy.orm import Session
 
-from . import models, schemas
+from src.schemas.component import ComponentCreate
+from src.schemas.user import UserCreate
+from src.db import models
 
 
 def get_user_by_id(db: Session, user_id: int):
     return db.query(models.User).filter(models.User.id == user_id).first()
 
 
-def create_user(db: Session, user: schemas.UserCreate):
+def create_user(db: Session, user: UserCreate):
     db_user = models.User(login=user.login, password=user.password)
     db.add(db_user)
     db.commit()
@@ -33,7 +35,7 @@ def create_order(db: Session, id_order: int, component: int):
     db.commit()
 
 
-def get_all_orders(db: Session, user_id: int = None):
+def get_all_orders_to_user(db: Session, user_id: int = None):
     if user_id is None:
         return db.query(models.OrderToUser).all()
     else:
@@ -44,7 +46,7 @@ def get_component_by_id(db: Session, component_id: int):
     return db.query(models.Component).filter(models.Component.id == component_id).first()
 
 
-def add_component(db: Session, component: schemas.ComponentCreate):
+def add_component(db: Session, component: ComponentCreate):
     db_component = models.Component(name=component.name, type=component.type, cost=component.cost)
     db.add(db_component)
     db.commit()
